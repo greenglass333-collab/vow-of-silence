@@ -382,7 +382,7 @@ function route(){const h=location.hash||'#login';
 addEventListener('hashchange',route);
 function drawLogin(){me=null;app.innerHTML=`<div class="lg"><h1>VOWOFSILENCE</h1><input id="u" placeholder="USER ID" autocomplete="username"><input id="p" type="password" placeholder="PASSWORD" autocomplete="current-password"><small id="er"></small></div>`;
  const go=async()=>{try{me=await net.send('login',{id:$('#u').value.trim(),pw:$('#p').value});await net.send('slots');location.hash=me.role=='admin'?'#admin':'#apply';route()}catch(e){$('#er').textContent='아이디 또는 비밀번호가 일치하지 않습니다.'}};
- ```javascript
+ $('#p').onkeydown=e=>{if(e.key=='Enter')go()};$('#u').onkeydown=e=>{if(e.key=='Enter')$('#p').focus()};$('#u').focus()}
 function drawApply(){const ap=(t)=>{const[h]=t.split(':');return t+(+h>=12?' P.M':' A.M')},pills=a=>[0,1,2].map(i=>a[i]?`<div class="pl">${esc(a[i])}</div>`:`<div class="pl e">캐릭터 이름</div>`).join('');
  const lab={live:'현재 전투가 진행 중입니다.',done:'전투가 종료되었습니다.',full:'곧 전투가 시작됩니다.',cancel:'인원 미달로 미진행',open:'인원 모집 중'};
  app.innerHTML=`<div class="ap"><h2>전투 신청</h2><label class="au">자정 자동 신청 <select id="au"><option value="0">사용 안 함</option>${slots.map(s=>`<option value="${s.n}" ${me.auto==s.n?'selected':''}>${s.n}타임</option>`).join('')}</select></label>
