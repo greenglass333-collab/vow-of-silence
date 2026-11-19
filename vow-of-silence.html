@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VOW OF SILENCE</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<style>
+:root{--bg:#e0e0e0;--k:#000;--f:'Archivo','Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--k);font:600 14px var(--f);min-height:100vh}
+button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer;background:none;border:0}
+:focus-visible{outline:3px solid #888;outline-offset:2px}
+/* 로그인 */
+.lg{position:relative;height:100vh;display:grid;place-items:center}
+.lg h1{font:900 8.3vw/1 var(--f);font-stretch:125%;letter-spacing:-.03em;white-space:nowrap}
+.lg input{position:absolute;width:22.9vw;height:2.3vw;min-height:34px;border:1px solid #000;border-radius:99px;background:var(--bg);text-align:center;font-size:1.1vw;font-stretch:75%;outline-offset:3px}
+#u{left:27%;top:calc(50% - 2.35vw)}#p{left:50%;top:calc(50% + .3vw)}
+.lg small{position:absolute;top:62%;font-size:13px}
+/* 신청 */
+.ap{width:min(640px,94vw);margin:6vh auto;background:#000;color:var(--bg);border-radius:60px;padding:36px 36px 44px}
+.ap h2{text-align:center;font-size:34px;margin-bottom:14px}
+.au{display:flex;justify-content:center;gap:10px;font-size:12px;margin-bottom:14px}.au select{background:#000;border:1px solid var(--bg);border-radius:99px;padding:2px 8px}
+.sl{border:1px solid var(--bg);border-radius:40px;padding:14px 18px;margin-bottom:14px;display:grid;grid-template-columns:1fr auto;gap:8px 12px}
+.hd{display:flex;gap:8px;align-items:center;font-size:24px;font-weight:800}.tm{background:var(--bg);color:#000;border-radius:99px;padding:0 18px;font-size:22px}
+.nm{grid-column:1}.nm>div{display:grid;grid-template-columns:repeat(3,1fr);gap:5px 10px;margin-left:68px;margin-top:-6px}
+.nm i{position:absolute;font-style:normal;font-size:13px}
+.nm{position:relative;padding-top:4px}.nm i{top:12px}
+.pl{border:1px solid var(--bg);border-radius:99px;font-size:10px;text-align:center;padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pl.e{opacity:.45}
+.scb{grid-column:2;grid-row:1/3;border:1px solid var(--bg);border-radius:14px;padding:4px 10px;text-align:center;font-weight:900;min-width:92px}
+.scb span{font-size:17px;display:block}.scb b{font-size:34px;font-stretch:125%;margin:0 6px}.scb small{display:block;font-size:8px;font-weight:600;letter-spacing:0}
+.bs{grid-column:1/3;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bs button{border:1px solid var(--bg);border-radius:99px;padding:6px 14px;display:flex;justify-content:space-between;align-items:center;color:var(--bg);font-size:12px}
+.bs button:disabled{opacity:.4;cursor:default}.bs button small{font-size:8px}
+/* 전투 */
+.bt{display:grid;grid-template-columns:8vw 1fr 23.5vw;gap:1.4vw;height:100vh;padding:2.4vh 1.4vw;overflow:hidden}
+.sk{display:flex;flex-direction:column;gap:2.2vh;overflow:auto}
+.home{display:inline-block;background:#000;color:var(--bg);border-radius:99px;padding:2px 16px;font:900 2vw var(--f);font-stretch:125%;text-decoration:none;margin-bottom:5vh;white-space:nowrap;align-self:flex-start}
+.skill{position:relative;cursor:pointer}.skill b{position:absolute;top:-1.1vh;left:0;background:var(--bg);border:1px solid #000;font-size:.7vw;min-font-size:9px;padding:0 6px;font-size:max(9px,.75vw);z-index:1}
+.skill div{border:1px solid #000;aspect-ratio:1;display:flex;align-items:flex-end;justify-content:flex-end;padding:6px}
+.skill em{font:900 max(14px,1.8vw)/1 var(--f);font-style:normal;background:#000;color:var(--bg);border-radius:8px;width:2.6vw;min-width:26px;aspect-ratio:1;display:grid;place-items:center}
+.skill.sel div{background:#000}.skill.sel em{background:var(--bg);color:#000}.skill.off{opacity:.35;pointer-events:none}
+.skill:hover::after{content:attr(data-tip);position:absolute;left:100%;top:30%;margin-left:8px;width:16vw;background:#000;color:var(--bg);border-radius:14px;padding:10px 12px;font-size:12px;z-index:9}
+.bt main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.pn{background:#000;border-radius:2.4vw;padding:1.2vw;display:grid;grid-template-columns:repeat(3,1fr);gap:.8vw;width:34vw}.pn.r{align-self:flex-end}
+.cd{background:var(--bg);border-radius:1.4vw;aspect-ratio:1;padding:.9vw;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;border:3px solid transparent;min-width:0}
+.cd.tg{border-color:#888}.cd.on{box-shadow:0 0 0 3px var(--bg),0 0 0 6px #000}.cd.dead{opacity:.4}
+.cd span{align-self:flex-start;background:#000;color:var(--bg);border-radius:99px;padding:1px 10px;font-size:max(10px,.8vw)}
+.cd div{display:flex;justify-content:space-between;align-items:flex-end}.cd b{font:900 3.6vw/1 var(--f);font-stretch:110%}
+.cd i{font-style:normal;background:#000;color:var(--bg);border-radius:.8vw;width:3.2vw;aspect-ratio:1;display:grid;place-items:center;font-size:max(9px,.75vw);text-align:center;overflow:hidden}
+.tl{font:800 4.2vw/1 var(--f);font-stretch:125%;margin:1vh 0;white-space:nowrap}.tl.r{align-self:flex-end}.sp{flex:1}
+.lb{align-self:flex-start;background:#000;color:var(--bg);border-radius:99px;padding:.6vh 1.6vw;font-size:max(14px,1.4vw);margin:2vh 0 1vh}
+#tx{border:2px solid #000;border-radius:3vw;background:transparent;resize:none;height:19vh;padding:2.5vh 2.4vw;font-size:max(13px,1vw);outline-offset:3px}
+.rt{display:flex;flex-direction:column;gap:1.6vh;min-height:0}
+.score{position:relative;background:#000;border-radius:3vw;height:17vh;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:1vw}
+.score::before{content:"SCORE";position:absolute;font:900 9vw/1 var(--f);font-stretch:125%;color:var(--bg);opacity:.9;letter-spacing:-.04em}
+.score div{position:relative;background:#000;color:var(--bg);padding:.4vw 1.4vw;font:900 1.9vw/1 var(--f);font-stretch:62%}.score div b{display:block;font-size:3.4vw;font-stretch:125%;text-align:center}
+.spec{border:2px solid #000;border-radius:2.4vw;padding:1.2vh 1vw;display:flex;flex-wrap:wrap;gap:.5vh .4vw;max-height:16vh;overflow:auto}
+.spec span{background:#000;color:var(--bg);border-radius:99px;padding:.4vh 1vw;font-size:max(11px,.8vw)}
+.chat{flex:1;min-height:0;background:#000;color:var(--bg);border-radius:3.2vw;padding:2.4vh 1.6vw;display:flex;flex-direction:column}
+.chat header{display:flex;justify-content:space-between;align-items:center}.chat header span{font:500 2.6vw var(--f)}.chat header button{color:var(--bg);font-size:2.2vw}
+#msgs{overflow:auto;flex:1;margin-top:1vh}.chat.fold #msgs{display:none}
+.m{margin:1.2vh 0}.m b{font-size:max(11px,.85vw)}.m p{border:1px solid var(--bg);border-radius:99px;padding:.8vh 1.2vw;display:inline-block;margin-top:.4vh;font-size:max(11px,.85vw);font-weight:500;white-space:pre-wrap}.m small{font-size:9px;margin-left:6px}
+.s{text-align:center;font-size:max(10px,.78vw);font-weight:500;margin:1.4vh 0}
+/* 운영 */
+.ad{width:min(560px,92vw);margin:8vh auto;border:2px solid #000;border-radius:28px;padding:28px;display:grid;gap:14px}.ad div{display:flex;gap:10px;align-items:center}
+.ad input,.ad button{border:1px solid #000;border-radius:99px;padding:6px 14px}.ad button{background:#000;color:var(--bg)}
+</style></head><body><div id="app"></div>
+<script type="module">
+/* ============ 서버 연동 안내 ============
+ * 아래 `net` 객체만 WebSocket/HTTP 구현으로 교체하면 됩니다. (MOCK 블록은 삭제)
+ * net.send(type,data) -> Promise (실패 시 reject) / net.on(type,fn) <- 서버 푸시
+ * 요청: login{id,pw}→{id,name,team:'P'|'D',role:'user'|'admin',auto}  slots→[slot]  apply{n}  cancel{n}  auto{n(0=해제)}
+ *       enter{n}(→battle 푸시 시작)  leave{n}  act{n,skill,target,text}  setTimes{times:[4]}  forceStart{n}
+ * 푸시: slots [slot]  /  battle state
+ * slot  = {n,time:'16:00',P:[이름],D:[이름],score:[p,d],status:'open'|'full'|'live'|'done'|'cancel'}
+ * state = {n,turn,cur:id|null,teams:{P:[unit],D:[unit]},score:{P,D},spec:[이름],log:[entry],over:null|{w:'P'|'D'|null}}
+ *   unit={id,name,hp,tags:['행동 불능'|'일시 불능'|'빈사'],uses:{stu,inc,pro,hea,exp}}
+ *   entry={k:'chat',name,text,turn} | {k:'sys',text}
+ * skill 키: stu 스투페파이, inc 인센디오, pro 프로테고, hea 치유 주문, exp 엑스펠리아무스
+ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+/* 1. 본인 Firebase Realtime Database 설정으로 교체하세요 */
+const firebaseConfig = {
+  apiKey: "AIzaSyBCG8EOJQVe2TeJLIfCWQqHnuLcMqsgEPU",
+  authDomain: "vow-of-silence-e2c93.firebaseapp.com",
+  databaseURL: "https://vow-of-silence-e2c93-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  projectId: "vow-of-silence-e2c93",
+  storageBucket: "vow-of-silence-e2c93.firebasestorage.app",
+  messagingSenderId: "63020183712",
+  appId: "1:63020183712:web:7a18d5c051d77b8a5759c5",
+  measurementId: "G-ENSV95H5Y4"
+};
+```[cite: 5]
+
+이제 파일을 저장하신 뒤 브라우저로 열어서 `admin` / `admin`으로 로그인해 테스트해 보시면 됩니다!
+
+/* 2. 관리진이 배부할 계정 목록 (P: 불사조 기사단 / D: 죽음을 먹는 자) */
+const USERS = [
+  { id: 'harry', pw: '1234', name: '해리', team: 'P', role: 'user' },
+  { id: 'ron', pw: '1234', name: '론', team: 'P', role: 'user' },
+  { id: 'hermione', pw: '1234', name: '헤르미온느', team: 'P', role: 'user' },
+  { id: 'draco', pw: '1234', name: '드레이코', team: 'D', role: 'user' },
+  { id: 'bella', pw: '1234', name: '벨라트릭스', team: 'D', role: 'user' },
+  { id: 'lucius', pw: '1234', name: '루시우스', team: 'D', role: 'user' },
+  { id: 'admin', pw: 'admin', name: '관리자', team: 0, role: 'admin' }
+];
+
+const appFB = initializeApp(firebaseConfig);
+const db = getDatabase(appFB);
+const gameRef = ref(db, 'vow_of_silence_game');
+
+const SK = {
+  stu: ['스투페파이', 10, '단일 공격 (5~20). 대상의 체력이 낮을수록 더 큰 피해'],
+  inc: ['인센디오', 2, '상대 진영 전체 공격 (3~15). 전투 중 2회'],
+  pro: ['프로테고', 3, '같은 진영 1인의 피해를 5~20 막음. 3회'],
+  hea: ['치유 주문', 1, '같은 진영 1인의 HP를 1~99 회복. 1회'],
+  exp: ['엑스펠리아무스', 3, '상대를 1~3턴 일시 불능으로 만듦. 3회']
+};
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = a => a[R(0, a.length - 1)];
+const shuf = a => a.map(x => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+const kstDay = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' });
+const kstNow = () => new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+
+let cache = null, myUser = null, watchSlot = 0, botTimer = null;
+
+function initSlots(times, auto) {
+  const S = times.map((time, i) => ({ n: i + 1, time, P: [], D: [], B: null, x: 0 }));
+  Object.entries(auto || {}).forEach(([id, n]) => {
+    if (!n) return;
+    const u = USERS.find(x => x.id === id);
+    const s = S[n - 1];
+    if (u && s && u.team && s[u.team].length < 3 && !s[u.team].some(x => x.id === u.id)) {
+      s[u.team].push({ id: u.id, name: u.name, team: u.team });
+    }
+  });
+  return S;
+}
+
+function norm(raw) {
+  const today = kstDay();
+  if (!raw || !raw.times) {
+    const times = ['16:00', '17:00', '18:00', '19:00'];
+    return { day: today, times, auto: {}, S: initSlots(times, {}) };
+  }
+  const times = Array.isArray(raw.times) ? raw.times : Object.values(raw.times);
+  const auto = raw.auto || {};
+  if (raw.day !== today) return { day: today, times, auto, S: initSlots(times, auto) };
+  const rawS = raw.S ? (Array.isArray(raw.S) ? raw.S : Object.values(raw.S)) : initSlots(times, auto);
+  const S = rawS.map((s, i) => ({
+    n: s.n || i + 1,
+    time: s.time || times[i] || '16:00',
+    P: s.P ? Object.values(s.P) : [],
+    D: s.D ? Object.values(s.D) : [],
+    x: s.x || 0,
+    B: s.B ? {
+      n: s.B.n || s.n || i + 1,
+      turn: s.B.turn || 0,
+      i: s.B.i ?? -1,
+      cur: s.B.cur || null,
+      order: s.B.order ? Object.values(s.B.order) : [],
+      units: s.B.units ? Object.values(s.B.units) : [],
+      log: s.B.log ? Object.values(s.B.log) : [],
+      spec: s.B.spec || {},
+      over: s.B.over || null,
+      sc: s.B.sc || { P: 0, D: 0 },
+      dm: s.B.dm || { P: 0, D: 0 },
+      end: s.B.end || Date.now() + 36e5,
+      pend: {
+        dmg: (s.B.pend && s.B.pend.dmg) || {},
+        sh: (s.B.pend && s.B.pend.sh) || {},
+        heal: (s.B.pend && s.B.pend.heal) || {},
+        exp: (s.B.pend && s.B.pend.exp) || {}
+      }
+    } : null
+  }));
+  return { day: raw.day, times, auto, S };
+}
+
+const tg = u => u.hp <= 0 ? ['행동 불능'] : [...(u.inc ? ['일시 불능'] : []), ...(u.hp < 30 ? ['빈사'] : [])];
+const st = s => s.B ? (s.B.over ? 'done' : 'live') : s.x ? 'cancel' : s.P.length + s.D.length === 6 ? 'full' : 'open';
+const sys = (B, text) => B.log.push({ k: 'sys', text });
+
+function viewBattle(B) {
+  const t = x => B.units.filter(u => u.team === x).map(u => ({ id: u.id, name: u.name, hp: u.hp, tags: tg(u), uses: u.uses }));
+  return { n: B.n, turn: B.turn, cur: B.cur || null, teams: { P: t('P'), D: t('D') }, score: B.sc, spec: Object.values(B.spec || {}), log: B.log, over: B.over };
+}
+
+function startBattle(s) {
+  const mk = u => ({ id: u.id, name: u.name, team: u.team, hp: 100, inc: 0, bot: !!u.bot, uses: { stu: 10, inc: 2, pro: 3, hea: 1, exp: 3 } });
+  const B = s.B = { n: s.n, turn: 0, i: -1, cur: null, order: [], units: [...s.P, ...s.D].map(mk), log: [], spec: {}, over: null, sc: { P: 0, D: 0 }, dm: { P: 0, D: 0 }, end: Date.now() + 36e5, pend: { dmg: {}, sh: {}, heal: {}, exp: {} } };
+  sys(B, '전투가 시작되었습니다.');
+  nextTurn(B);
+}
+
+function nextTurn(B) {
+  B.turn++;
+  B.order = shuf(B.units.filter(u => u.hp > 0 && !u.inc).map(u => u.id));
+  B.i = -1;
+  B.pend = { dmg: {}, sh: {}, heal: {}, exp: {} };
+  advance(B);
+}
+
+function advance(B) {
+  B.i++;
+  if (B.i >= B.order.length) { B.cur = null; return endTurn(B); }
+  B.cur = B.order[B.i];
+}
+
+function applyAct(B, uid, d) {
+  if (B.over || B.cur !== uid) return false;
+  const u = B.units.find(x => x.id === uid);
+  if (!u) return false;
+  if (u.bot && !d.skill) {
+    const en = B.units.filter(x => x.team !== u.team && x.hp > 0);
+    const al = B.units.filter(x => x.team === u.team && x.hp > 0);
+    const ks = Object.keys(u.uses).filter(k => u.uses[k] > 0 && (k !== 'hea' || al.some(a => a.hp < 60)));
+    if (ks.length) {
+      const skill = pick(ks);
+      d = { skill, target: (skill === 'pro' || skill === 'hea' ? pick(al) : pick(en)).id, text: '주문을 외우며 지팡이를 겨눈다.' };
+    }
+  }
+  const k = d.skill, P = B.pend;
+  if (!k) {
+    sys(B, `${u.name}이(가) 행동하지 않았습니다.`);
+  } else {
+    if (!SK[k] || u.uses[k] < 1) return false;
+    const ally = k === 'pro' || k === 'hea';
+    const t = B.units.find(x => x.id === d.target) || (ally ? u : null);
+    if (k !== 'inc' && (!t || t.hp <= 0 || (ally ? t.team !== u.team : t.team === u.team))) return false;
+    const add = (o, id, v) => o[id] = (o[id] || 0) + v;
+    let lab = '데미지', v = 0, eff = '없음';
+    u.uses[k]--;
+    if (k === 'stu') { v = Math.round(R(5, 20) * (2 - t.hp / 100)); add(P.dmg, t.id, v); }
+    else if (k === 'inc') B.units.filter(x => x.team !== u.team && x.hp > 0).forEach(x => { const w = R(3, 15); v += w; add(P.dmg, x.id, w); });
+    else if (k === 'pro') { lab = '방어'; v = R(5, 20); add(P.sh, t.id, v); }
+    else if (k === 'hea') { lab = '회복'; v = R(1, 99); add(P.heal, t.id, v); }
+    else { P.exp[t.id] = R(1, 3); eff = '일시 불능'; }
+    B.log.push({ k: 'chat', name: u.name, text: d.text || '(말없이 지팡이를 든다)', turn: B.turn });
+    sys(B, `${u.name}이(가) ${SK[k][0]}을(를) 사용하였습니다. ${lab} ${v}, 특수효과 ${eff} 적용.`);
+  }
+  advance(B);
+  return true;
+}
+
+function endTurn(B) {
+  const P = B.pend, L = [];
+  B.units.forEach(u => { if (u.inc > 0) { u.inc--; if (!u.inc) L.push(`${u.name}: [일시 불능] 해제되었습니다.`); } });
+  B.units.forEach(u => {
+    const raw = P.dmg[u.id] || 0, sh = P.sh[u.id] || 0, hl = P.heal[u.id] || 0, d = Math.max(0, raw - sh), old = u.hp;
+    u.hp = Math.max(0, Math.min(100, old - d + hl));
+    const lost = Math.min(d, old);
+    B.dm[u.team === 'P' ? 'D' : 'P'] += lost;
+    if (raw) L.push(sh ? `${u.name}: 방어로 ${Math.min(raw, sh)} 막아냄, ${d} 데미지 (HP ${u.hp})` : `${u.name}: ${d} 데미지를 입었습니다. (HP ${u.hp})`);
+    else if (sh) L.push(`${u.name}: 방어가 발동됩니다. HP 차감 없음`);
+    if (hl) L.push(`${u.name}: HP ${u.hp - old + d > 0 ? u.hp - old + d : hl} 회복 (HP ${u.hp})`);
+    if (u.hp <= 0) { u.inc = 0; if (old > 0) L.push(`${u.name}: [행동 불능] 상태가 되었습니다.`); }
+    else if (P.exp[u.id]) { u.inc = P.exp[u.id]; L.push(`${u.name}: [일시 불능] ${B.turn + u.inc}턴까지 지속`); }
+  });
+  B.sc.P = Math.floor(B.dm.P / 100);
+  B.sc.D = Math.floor(B.dm.D / 100);
+  sys(B, `— ${B.turn}번째 턴 종료 —`);
+  L.forEach(t => sys(B, t));
+  const dead = x => B.units.filter(u => u.team === x).every(u => u.hp <= 0);
+  if (dead('P') || dead('D')) return finBattle(B, '전원 행동 불능');
+  nextTurn(B);
+}
+
+function finBattle(B, why) {
+  const t = x => B.units.filter(u => u.team === x).reduce((a, u) => a + u.hp, 0);
+  const w = B.sc.P !== B.sc.D ? (B.sc.P > B.sc.D ? 'P' : 'D') : t('P') === t('D') ? '' : t('P') > t('D') ? 'P' : 'D';
+  B.over = { w };
+  B.cur = null;
+  sys(B, `전투 종료 (${why}). ${w ? (w === 'P' ? '불사조 기사단' : '죽음을 먹는 자') + '의 승리!' : '무승부'}`);
+}
+
+function publishState(M) {
+  net.emit('slots', M.S.map(s => ({ n: s.n, time: s.time, P: s.P.map(u => u.name), D: s.D.map(u => u.name), score: s.B ? [s.B.sc.P, s.B.sc.D] : [0, 0], status: st(s) })));
+  const s = M.S[watchSlot - 1];
+  if (s && s.B) {
+    net.emit('battle', viewBattle(s.B));
+    const curU = s.B.units.find(u => u.id === s.B.cur);
+    if (myUser && myUser.role === 'admin' && curU && curU.bot && !s.B.over) {
+      clearTimeout(botTimer);
+      botTimer = setTimeout(() => runTransaction(gameRef, raw => {
+        const m = norm(raw), b = m.S[watchSlot - 1]?.B;
+        if (b && b.cur === curU.id) applyAct(b, curU.id, {});
+        return m;
+      }), 1500);
+    }
+  }
+}
+
+onValue(gameRef, snap => {
+  cache = norm(snap.val());
+  if (!snap.exists()) runTransaction(gameRef, raw => norm(raw));
+  publishState(cache);
+});
+
+setInterval(() => {
+  if (!cache) return;
+  const now = kstNow(), today = kstDay();
+  let need = cache.day !== today;
+  cache.S.forEach(s => {
+    const [h, m] = s.time.split(':'), t = kstNow();
+    t.setHours(+h, +m, 0, 0);
+    if (!s.B && !s.x && now >= t) need = true;
+    if (s.B && !s.B.over && Date.now() > s.B.end) need = true;
+  });
+  if (need) {
+    runTransaction(gameRef, raw => {
+      const M = norm(raw);
+      M.S.forEach(s => {
+        const [h, m] = s.time.split(':'), t = kstNow();
+        t.setHours(+h, +m, 0, 0);
+        if (!s.B && !s.x && now >= t) {
+          if (s.P.length + s.D.length === 6) startBattle(s);
+          else s.x = 1;
+        }
+        if (s.B && !s.B.over && Date.now() > s.B.end) finBattle(s.B, '제한 시간 1시간 경과');
+      });
+      return M;
+    });
+  }
+}, 3000);
+
+const net = {
+  h: {},
+  on(t, f) { (this.h[t] = this.h[t] || []).push(f); },
+  emit(t, d) { (this.h[t] || []).forEach(f => f(d)); },
+  async send(t, d = {}) {
+    if (t === 'login') {
+      const u = USERS.find(x => x.id === d.id && x.pw === d.pw);
+      if (!u) throw 0;
+      myUser = u;
+      return { id: u.id, name: u.name, team: u.team, role: u.role, auto: (cache && cache.auto && cache.auto[u.id]) || 0 };
+    }
+    if (t === 'slots') { if (cache) publishState(cache); return 1; }
+    if (!myUser) throw 0;
+    const adm = () => { if (myUser.role !== 'admin') throw 0; };
+    let ok = true;
+    await runTransaction(gameRef, raw => {
+      const M = norm(raw);
+      if (t === 'apply') {
+        const s = M.S[d.n - 1];
+        if (!s || s.B || s.x || !myUser.team || s[myUser.team].length >= 3 || s[myUser.team].some(x => x.id === myUser.id)) { ok = false; return; }
+        s[myUser.team].push({ id: myUser.id, name: myUser.name, team: myUser.team });
+      } else if (t === 'cancel') {
+        const s = M.S[d.n - 1];
+        if (!s || s.B) { ok = false; return; }
+        s[myUser.team] = s[myUser.team].filter(x => x.id !== myUser.id);
+      } else if (t === 'auto') {
+        M.auto[myUser.id] = d.n;
+      } else if (t === 'enter') {
+        const s = M.S[d.n - 1];
+        if (!s || !s.B) { ok = false; return; }
+        watchSlot = d.n;
+        if (!s.B.units.some(u => u.id === myUser.id)) s.B.spec[myUser.id] = myUser.name;
+      } else if (t === 'leave') {
+        const s = M.S[d.n - 1];
+        if (s && s.B && s.B.spec) delete s.B.spec[myUser.id];
+        watchSlot = 0;
+      } else if (t === 'act') {
+        const B = M.S[d.n - 1]?.B;
+        if (!B || !applyAct(B, myUser.id, d)) { ok = false; return; }
+      } else if (t === 'setTimes') {
+        adm();
+        M.times = d.times;
+        M.S.forEach((s, i) => s.time = d.times[i]);
+      } else if (t === 'forceStart') {
+        adm();
+        const s = M.S[d.n - 1];
+        if (!s || s.B) { ok = false; return; }
+        s.x = 0;
+        ['P', 'D'].forEach(tm => {
+          while (s[tm].length < 3) s[tm].push({ id: 'bot' + tm + s[tm].length, name: '봇' + tm + (s[tm].length + 1), team: tm, bot: 1 });
+        });
+        startBattle(s);
+      }
+      return M;
+    });
+    if (!ok) throw 0;
+    return 1;
+  }
+};/* ============ CLIENT ============ */
+const $=s=>document.querySelector(s),app=$('#app');
+let me=null,slots=[],B=null,cur=0,sel={k:null,t:null};
+net.on('slots',s=>{slots=s;if(location.hash=='#apply')drawApply()});
+net.on('battle',b=>{B=b;upd()});
+const inSlot=s=>s.P.concat(s.D).includes(me.name);
+function route(){const h=location.hash||'#login';
+ if(cur){net.send('leave',{n:cur});cur=0;B=null}
+ if(h!='#login'&&!me)return location.hash='#login';
+ if(h=='#login')return drawLogin();
+ if(h=='#admin')return me.role=='admin'?drawAdmin():location.hash='#apply';
+ if(h.startsWith('#battle/')){cur=+h.split('/')[1];buildBattle();return net.send('enter',{n:cur}).catch(()=>location.hash='#apply')}
+ drawApply()}
+addEventListener('hashchange',route);
+function drawLogin(){me=null;app.innerHTML=`<div class="lg"><h1>VOWOFSILENCE</h1><input id="u" placeholder="USER ID" autocomplete="username"><input id="p" type="password" placeholder="PASSWORD" autocomplete="current-password"><small id="er"></small></div>`;
+ const go=async()=>{try{me=await net.send('login',{id:$('#u').value.trim(),pw:$('#p').value});await net.send('slots');location.hash=me.role=='admin'?'#admin':'#apply';route()}catch(e){$('#er').textContent='아이디 또는 비밀번호가 일치하지 않습니다.'}};
+ $('#p').onkeydown=e=>e.key=='Enter'&&go();$('#u').onkeydown=e=>e.key=='Enter'&&$('#p').focus();$('#u').focus()}
+function drawApply(){const ap=(t)=>{const[h]=t.split(':');return t+(+h>=12?' P.M':' A.M')},pills=a=>[0,1,2].map(i=>a[i]?`<div class="pl">${esc(a[i])}</div>`:`<div class="pl e">캐릭터 이름</div>`).join('');
+ const lab={live:'현재 전투가 진행 중입니다.',done:'전투가 종료되었습니다.',full:'곧 전투가 시작됩니다.',cancel:'인원 미달로 미진행',open:'인원 모집 중'};
+ app.innerHTML=`<div class="ap"><h2>전투 신청</h2><label class="au">자정 자동 신청 <select id="au"><option value="0">사용 안 함</option>${slots.map(s=>`<option value="${s.n}" ${me.auto==s.n?'selected':''}>${s.n}타임</option>`).join('')}</select></label>
+ ${slots.map(s=>{const mine=inSlot(s),left=me.team?3-s[me.team].length:0,play=mine&&(s.status=='live'||s.status=='done');
+ return`<section class="sl"><div class="hd"><span>${s.n}타임</span><span class="tm">${ap(s.time)}</span></div>
+ <div class="scb"><span>SCORE</span><b>${s.score[0]}</b><b>${s.score[1]}</b><small>ORDER OF THE PHOENIX · DEATH EATER</small></div>
+ <div class="nm"><i>신청 현황</i><div>${pills(s.P)}${pills(s.D)}</div></div>
+ <div class="bs"><button data-a="${mine?'cancel':'apply'}" data-n="${s.n}" ${s.status!='open'||!me.team||(!mine&&!left)?'disabled':''}>▶ ${mine?'신청 취소':'신청하기'}<small>진영 잔여 좌석 수: ${left}</small></button>
+ <button data-a="watch" data-n="${s.n}" ${['live','done'].includes(s.status)?'':'disabled'}>▶ ${play?'입장하기':'관전하기'}<small>${lab[s.status]}</small></button></div></section>`}).join('')}</div>`;
+ $('#au').onchange=e=>{me.auto=+e.target.value;net.send('auto',{n:me.auto})}}
+app.onclick=async e=>{const b=e.target.closest('button[data-a]'),f=e.target.closest('[data-f]');
+ if(b){const n=+b.dataset.n,a=b.dataset.a;if(a=='watch')location.hash='#battle/'+n;else net.send(a,{n}).catch(()=>{})}
+ if(f)net.send('forceStart',{n:+f.dataset.f});
+ if(e.target.id=='sv')net.send('setTimes',{times:[...document.querySelectorAll('[data-t]')].map(i=>i.value)});
+ if(e.target.id=='lo')location.hash='#login';
+ const sk=e.target.closest('.skill'),cd=e.target.closest('.cd');
+ if(sk){sel.k=sel.k==sk.dataset.k?null:sk.dataset.k;sel.t=null;upd()}
+ if(cd&&sel.k&&sel.k!='inc'){const u=allU().find(x=>x.id==cd.dataset.u),ally=sel.k=='pro'||sel.k=='hea',mt=myUnit(),team=B.teams.P.includes(u)?'P':'D',my=B.teams.P.includes(mt)?'P':'D';
+  if(u.hp>0&&(ally?team==my:team!=my))sel.t=u.id;upd()}
+ if(e.target.id=='fold')$('.chat').classList.toggle('fold')};
+const allU=()=>B?B.teams.P.concat(B.teams.D):[],myUnit=()=>allU().find(u=>u.id==me.id);
+function drawAdmin(){app.innerHTML=`<div class="ad"><h2>운영 페이지</h2><p>전투 시간을 설정합니다. 신청 현황은 매일 자정에 초기화됩니다.</p>${slots.map(s=>`<div><b>${s.n}타임</b><input type="time" data-t="${s.n}" value="${s.time}"><button data-f="${s.n}">데모: 봇으로 채우고 즉시 시작</button></div>`).join('')}<div><button id="sv">저장</button><button id="lo">로그아웃</button></div></div>`}
+function buildBattle(){const side=(id,cls)=>`<div class="pn ${cls}" id="${id}"></div>`;
+ app.innerHTML=`<div class="bt"><aside class="sk"><a class="home" href="#apply">◀HOME</a>${Object.entries(SK).map(([k,v])=>`<div class="skill" data-k="${k}" data-tip="${v[2]}"><b>${v[0]}</b><div><em></em></div></div>`).join('')}</aside>
+ <main>${side('pp','')}<h3 class="tl">Order Of The Phoenix</h3><div class="sp"></div><h3 class="tl r">Death Eater</h3>${side('dp','r')}<div class="lb" id="lb">사용 주문 이름</div><textarea id="tx" placeholder="이곳에 지문을 입력합니다."></textarea></main>
+ <aside class="rt"><div class="score"><div>PHOENIX<b id="sp">0</b></div><div>DEATH<b id="sd">0</b></div></div><div class="spec" id="spec"></div><div class="chat"><header><span id="clk"></span><button id="fold" aria-label="채팅 접기">▼</button></header><div id="msgs"></div></div></aside></div>`;
+ $('#tx').onkeydown=e=>{if(e.key!='Enter'||e.shiftKey)return;e.preventDefault();
+  const mt=myUnit();if(!B||!mt||B.over)return;if(B.cur!=me.id)return flash('아직 내 차례가 아닙니다.');
+  if(!sel.k)return flash('사용할 주문을 선택하세요.');
+  if(sel.k!='inc'&&!sel.t&&sel.k!='pro'&&sel.k!='hea')return flash('공격 대상을 클릭해 선택하세요.');
+  net.send('act',{n:cur,skill:sel.k,target:sel.t||me.id,text:$('#tx').value.trim()}).then(()=>{$('#tx').value='';sel={k:null,t:null};upd()}).catch(()=>flash('사용할 수 없는 행동입니다.'))}}
+function flash(t){const l=$('#lb');l.textContent=t;setTimeout(upd,1600)}
+function upd(){if(!B||!$('#pp'))return;const mt=myUnit(),mine=mt&&B.cur==mt.id;
+ const unit=u=>`<div class="cd ${u.hp<=0?'dead':''} ${B.cur==u.id?'on':''} ${sel.t==u.id?'tg':''}" data-u="${u.id}"><span>${u.tags.join(' · ')||'정상'}</span><div><b>${u.hp}</b><i>${esc(u.name)}</i></div></div>`;
+ $('#pp').innerHTML=B.teams.P.map(unit).join('');$('#dp').innerHTML=B.teams.D.map(unit).join('');
+ document.querySelectorAll('.skill').forEach(s=>{const k=s.dataset.k,n=mt?mt.uses[k]:0;s.querySelector('em').textContent=n;s.classList.toggle('sel',sel.k==k);s.classList.toggle('off',!mt||n<1||mt.hp<=0)});
+ $('#sp').textContent=B.score.P;$('#sd').textContent=B.score.D;
+ $('#spec').innerHTML=B.spec.length?B.spec.map(n=>`<span>${esc(n)}</span>`).join(''):'<span style="background:none;color:#000;opacity:.5">관전자 없음</span>';
+ const sl=slots.find(s=>s.n==B.n),c=allU().find(u=>u.id==B.cur);
+ $('#clk').textContent=(sl?sl.time:'')+(B.over?' 종료':' · '+B.turn+'턴');
+ $('#lb').textContent=sel.k?SK[sel.k][0]:'사용 주문 이름';
+ $('#tx').placeholder=!mt?'관전 중입니다.':B.over?'전투가 종료되었습니다.':mine?'내 차례입니다. 지문을 입력하고 Enter를 누르세요.':(c?esc(c.name)+'의 차례입니다.':'');
+ const box=$('#msgs'),stick=box.scrollTop+box.clientHeight>=box.scrollHeight-40;
+ box.innerHTML=B.log.map(l=>l.k=='sys'?`<div class="s">${esc(l.text)}</div>`:`<div class="m"><b>${esc(l.name)}</b><br><p>${esc(l.text)}</p><small>${l.turn}번째 턴</small></div>`).join('');
+ if(stick)box.scrollTop=box.scrollHeight}
+route();
+</script></body></html>
