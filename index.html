@@ -87,7 +87,7 @@ button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer;ba
 </style></head><body><div id="app"></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, onValue, runTransaction, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref, onValue, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBCG8EOJQVe2TeJLIfCWQqHnuLcMqsgEPU",
@@ -142,6 +142,30 @@ function initSlots(times, auto, users) {
   return S;
 }
 
+function normB(B, n) {
+  if (!B) return null;
+  return {
+    n: B.n || n,
+    turn: B.turn || 0,
+    i: B.i ?? -1,
+    cur: B.cur || null,
+    order: B.order ? Object.values(B.order) : [],
+    units: B.units ? Object.values(B.units) : [],
+    log: B.log ? Object.values(B.log) : [],
+    spec: B.spec || {},
+    over: B.over || null,
+    sc: B.sc || { P: 0, D: 0 },
+    dm: B.dm || { P: 0, D: 0 },
+    end: B.end || Date.now() + 36e5,
+    pend: {
+      dmg: (B.pend && B.pend.dmg) || {},
+      sh: (B.pend && B.pend.sh) || {},
+      heal: (B.pend && B.pend.heal) || {},
+      exp: (B.pend && B.pend.exp) || {}
+    }
+  };
+}
+
 function norm(raw) {
   const today = kstDay();
   const users = raw && raw.users ? (Array.isArray(raw.users) ? raw.users : Object.values(raw.users)) : DEFAULT_USERS.map(u => ({ ...u }));
@@ -160,26 +184,7 @@ function norm(raw) {
     P: s.P ? Object.values(s.P) : [],
     D: s.D ? Object.values(s.D) : [],
     x: s.x || 0,
-    B: s.B ? {
-      n: s.B.n || s.n || i + 1,
-      turn: s.B.turn || 0,
-      i: s.B.i ?? -1,
-      cur: s.B.cur || null,
-      order: s.B.order ? Object.values(s.B.order) : [],
-      units: s.B.units ? Object.values(s.B.units) : [],
-      log: s.B.log ? Object.values(s.B.log) : [],
-      spec: s.B.spec || {},
-      over: s.B.over || null,
-      sc: s.B.sc || { P: 0, D: 0 },
-      dm: s.B.dm || { P: 0, D: 0 },
-      end: s.B.end || Date.now() + 36e5,
-      pend: {
-        dmg: (s.B.pend && s.B.pend.dmg) || {},
-        sh: (s.B.pend && s.B.pend.sh) || {},
-        heal: (s.B.pend && s.B.pend.heal) || {},
-        exp: (s.B.pend && s.B.pend.exp) || {}
-      }
-    } : null
+    B: normB(s.B, s.n || i + 1)
   }));
   return { day: raw.day, times, auto, users, S };
 }
@@ -290,12 +295,17 @@ function publishState(M) {
     clearTimeout(botTimer);
     if (myUser && curU && curU.bot && !s.B.over) {
       const targetSlot = watchSlot, targetBotId = curU.id;
-      botTimer = setTimeout(() => runTransaction(gameRef, raw => {
-        if (raw === null) return null;
-        const m = norm(raw), b = m.S[targetSlot - 1]?.B;
-        if (b && b.cur === targetBotId && !b.over) applyAct(b, targetBotId, {});
-        return m;
-      }), 1000);
+      botTimer = setTimeout(async () => {
+        try {
+          const bRef = ref(db, `vow_of_silence_game/S/${targetSlot - 1}/B`);
+          const snap = await get(bRef);
+          if (!snap.exists()) return;
+          const b = normB(snap.val(), targetSlot);
+          if (b && b.cur === targetBotId && !b.over) {
+            if (applyAct(b, targetBotId, {})) await set(bRef, b);
+          }
+        } catch (e) { console.error(e); }
+      }, 1000);
     }
   }
 }
@@ -309,7 +319,7 @@ onValue(gameRef, snap => {
   publishState(cache);
 });
 
-setInterval(() => {
+setInterval(async () => {
   if (!cache) return;
   const now = kstNow(), today = kstDay();
   let need = cache.day !== today;
@@ -320,20 +330,18 @@ setInterval(() => {
     if (s.B && !s.B.over && Date.now() > s.B.end) need = true;
   });
   if (need) {
-    runTransaction(gameRef, raw => {
-      if (raw === null) return null;
-      const M = norm(raw);
-      M.S.forEach(s => {
-        const [h, m] = s.time.split(':'), t = kstNow();
-        t.setHours(+h, +m, 0, 0);
-        if (!s.B && !s.x && now >= t) {
-          if (s.P.length + s.D.length === 6) startBattle(s);
-          else s.x = 1;
-        }
-        if (s.B && !s.B.over && Date.now() > s.B.end) finBattle(s.B, '제한 시간 1시간 경과');
-      });
-      return M;
+    const snap = await get(gameRef);
+    const M = norm(snap.val());
+    M.S.forEach(s => {
+      const [h, m] = s.time.split(':'), t = kstNow();
+      t.setHours(+h, +m, 0, 0);
+      if (!s.B && !s.x && now >= t) {
+        if (s.P.length + s.D.length === 6) startBattle(s);
+        else s.x = 1;
+      }
+      if (s.B && !s.B.over && Date.now() > s.B.end) finBattle(s.B, '제한 시간 1시간 경과');
     });
+    await set(gameRef, M);
   }
 }, 3000);
 
@@ -356,65 +364,66 @@ const net = {
     if (!myUser) throw 0;
     const adm = () => { if (myUser.role !== 'admin') throw 0; };
     if (t === 'users') { adm(); return cache.users.map(u => ({ id: u.id, name: u.name, team: u.team, role: u.role })); }
+    if (t === 'act') {
+      const bRef = ref(db, `vow_of_silence_game/S/${d.n - 1}/B`);
+      const snap = await get(bRef);
+      if (!snap.exists()) throw 0;
+      const b = normB(snap.val(), d.n);
+      if (!applyAct(b, myUser.id, d)) throw 0;
+      await set(bRef, b);
+      return 1;
+    }
     if (t === 'enter') watchSlot = d.n;
-    let ok = true;
-    await runTransaction(gameRef, raw => {
-      if (raw === null) return null;
-      ok = true;
-      const M = norm(raw);
-      if (t === 'apply') {
-        const s = M.S[d.n - 1];
-        if (!s || s.B || s.x || !myUser.team || s[myUser.team].length >= 3 || s[myUser.team].some(x => x.id === myUser.id)) { ok = false; return; }
-        s[myUser.team].push({ id: myUser.id, name: myUser.name, team: myUser.team });
-      } else if (t === 'cancel') {
-        const s = M.S[d.n - 1];
-        if (!s || s.B) { ok = false; return; }
-        s[myUser.team] = s[myUser.team].filter(x => x.id !== myUser.id);
-      } else if (t === 'auto') {
-        M.auto[myUser.id] = d.n;
-      } else if (t === 'enter') {
-        const s = M.S[d.n - 1];
-        if (!s || !s.B) { ok = false; return; }
-        if (!s.B.units.some(u => u.id === myUser.id)) s.B.spec[myUser.id] = myUser.name;
-      } else if (t === 'leave') {
-        const s = M.S[d.n - 1];
-        if (s && s.B && s.B.spec) delete s.B.spec[myUser.id];
-        watchSlot = 0;
-      } else if (t === 'act') {
-        const B = M.S[d.n - 1]?.B;
-        if (!B || !applyAct(B, myUser.id, d)) { ok = false; return; }
-      } else if (t === 'setTimes') {
-        adm();
-        M.times = d.times;
-        M.S.forEach((s, i) => s.time = d.times[i]);
-      } else if (t === 'forceStart') {
-        adm();
-        const s = M.S[d.n - 1];
-        if (!s) { ok = false; return; }
-        s.x = 0;
-        ['P', 'D'].forEach(tm => {
-          while (s[tm].length < 3) s[tm].push({ id: 'bot' + tm + s[tm].length, name: '봇' + tm + (s[tm].length + 1), team: tm, bot: 1 });
-        });
-        startBattle(s);
-      } else if (t === 'addUser') {
-        adm();
-        if (!d.id || !d.pw || !d.name || !['P', 'D'].includes(d.team) || M.users.some(u => u.id === d.id || u.name === d.name)) { ok = false; return; }
-        M.users.push({ id: d.id, pw: d.pw, name: d.name, team: d.team, role: 'user' });
-      } else if (t === 'delUser') {
-        adm();
-        const i = M.users.findIndex(u => u.id === d.id && u.role !== 'admin');
-        if (i < 0) { ok = false; return; }
-        M.users.splice(i, 1);
-        M.S.forEach(s => { if (!s.B) ['P', 'D'].forEach(tm => s[tm] = s[tm].filter(x => x.id !== d.id)); });
-        if (M.auto) delete M.auto[d.id];
-      } else if (t === 'resetDay') {
-        adm();
-        M.S = initSlots(M.times, M.auto, M.users);
-      }
-      return M;
-    });
-    if (!ok) { if (t === 'enter') watchSlot = 0; throw 0; }
-    if (t === 'enter' && cache) publishState(cache);
+    const snap = await get(gameRef);
+    const M = norm(snap.val());
+    if (t === 'apply') {
+      const s = M.S[d.n - 1];
+      if (!s || s.B || s.x || !myUser.team || s[myUser.team].length >= 3 || s[myUser.team].some(x => x.id === myUser.id)) throw 0;
+      s[myUser.team].push({ id: myUser.id, name: myUser.name, team: myUser.team });
+    } else if (t === 'cancel') {
+      const s = M.S[d.n - 1];
+      if (!s || s.B) throw 0;
+      s[myUser.team] = s[myUser.team].filter(x => x.id !== myUser.id);
+    } else if (t === 'auto') {
+      M.auto[myUser.id] = d.n;
+    } else if (t === 'enter') {
+      const s = M.S[d.n - 1];
+      if (!s || !s.B) { watchSlot = 0; throw 0; }
+      if (!s.B.units.some(u => u.id === myUser.id)) s.B.spec[myUser.id] = myUser.name;
+    } else if (t === 'leave') {
+      const s = M.S[d.n - 1];
+      if (s && s.B && s.B.spec) delete s.B.spec[myUser.id];
+      watchSlot = 0;
+    } else if (t === 'setTimes') {
+      adm();
+      M.times = d.times;
+      M.S.forEach((s, i) => s.time = d.times[i]);
+    } else if (t === 'forceStart') {
+      adm();
+      const s = M.S[d.n - 1];
+      if (!s) throw 0;
+      s.x = 0;
+      ['P', 'D'].forEach(tm => {
+        while (s[tm].length < 3) s[tm].push({ id: 'bot' + tm + s[tm].length, name: '봇' + tm + (s[tm].length + 1), team: tm, bot: 1 });
+      });
+      startBattle(s);
+    } else if (t === 'addUser') {
+      adm();
+      if (!d.id || !d.pw || !d.name || !['P', 'D'].includes(d.team) || M.users.some(u => u.id === d.id || u.name === d.name)) throw 0;
+      M.users.push({ id: d.id, pw: d.pw, name: d.name, team: d.team, role: 'user' });
+    } else if (t === 'delUser') {
+      adm();
+      const i = M.users.findIndex(u => u.id === d.id && u.role !== 'admin');
+      if (i < 0) throw 0;
+      M.users.splice(i, 1);
+      M.S.forEach(s => { if (!s.B) ['P', 'D'].forEach(tm => s[tm] = s[tm].filter(x => x.id !== d.id)); });
+      if (M.auto) delete M.auto[d.id];
+    } else if (t === 'resetDay') {
+      adm();
+      M.S = initSlots(M.times, M.auto, M.users);
+    }
+    await set(gameRef, M);
+    if (t === 'enter') publishState(M);
     return 1;
   }
 };
