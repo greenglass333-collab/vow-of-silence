@@ -113,7 +113,7 @@ const db = getDatabase(appFB);
 const gameRef = ref(db, 'vow_of_silence_game');
 
 const SK = {
-  stu: ['스투페파이', 10, '단일 공격 (5~20). 대상의 체력이 낮을수록 더 큰 피해'],
+  stu: ['스투페파이', 10, '단일 공격 (5~20). 대상의 체력이 낮을수록 더 큰 피해 (무제한)'],
   inc: ['인센디오', 2, '상대 진영 전체 공격 (3~15). 전투 중 2회'],
   pro: ['프로테고', 3, '같은 진영 1인의 피해를 5~20 막음. 3회'],
   hea: ['치유 주문', 1, '같은 진영 1인의 HP를 1~99 회복. 1회'],
@@ -219,8 +219,8 @@ function applyAct(B, uid, d) {
   if (u.bot && !d.skill) {
     const en = B.units.filter(x => x.team !== u.team && x.hp > 0);
     const al = B.units.filter(x => x.team === u.team && x.hp > 0);
-    const ks = Object.keys(u.uses).filter(k => u.uses[k] > 0 && (k !== 'hea' || al.some(a => a.hp < 60)));
-    if (ks.length) {
+    const ks = Object.keys(u.uses).filter(k => (k === 'stu' || u.uses[k] > 0) && (k !== 'hea' || al.some(a => a.hp < 60)));
+    if (ks.length && en.length) {
       const skill = pick(ks);
       d = { skill, target: (skill === 'pro' || skill === 'hea' ? pick(al) : pick(en)).id, text: '주문을 외우며 지팡이를 겨눈다.' };
     }
@@ -229,7 +229,7 @@ function applyAct(B, uid, d) {
   if (!k) {
     sys(B, `${u.name}이(가) 행동하지 않았습니다.`);
   } else {
-    if (!SK[k] || u.uses[k] < 1) return false;
+    if (!SK[k] || (k !== 'stu' && u.uses[k] < 1)) return false;
     const ally = k === 'pro' || k === 'hea';
     const t = B.units.find(x => x.id === d.target) || (ally ? u : null);
     if (k !== 'inc' && (!t || t.hp <= 0 || (ally ? t.team !== u.team : t.team === u.team))) return false;
@@ -285,11 +285,13 @@ function publishState(M) {
   if (s && s.B) {
     net.emit('battle', viewBattle(s.B));
     const curU = s.B.units.find(u => u.id === s.B.cur);
+    clearTimeout(botTimer);
     if (myUser && curU && curU.bot && !s.B.over) {
-      clearTimeout(botTimer);
+      const targetSlot = watchSlot, targetBotId = curU.id;
       botTimer = setTimeout(() => runTransaction(gameRef, raw => {
-        const m = norm(raw), b = m.S[watchSlot - 1]?.B;
-        if (b && b.cur === curU.id) applyAct(b, curU.id, {});
+        if (!raw) return;
+        const m = norm(raw), b = m.S[targetSlot - 1]?.B;
+        if (b && b.cur === targetBotId && !b.over) applyAct(b, targetBotId, {});
         return m;
       }), 1000);
     }
@@ -314,6 +316,7 @@ setInterval(() => {
   });
   if (need) {
     runTransaction(gameRef, raw => {
+      if (!raw) return;
       const M = norm(raw);
       M.S.forEach(s => {
         const [h, m] = s.time.split(':'), t = kstNow();
@@ -348,6 +351,7 @@ const net = {
     if (!myUser) throw 0;
     const adm = () => { if (myUser.role !== 'admin') throw 0; };
     if (t === 'users') { adm(); return cache.users.map(u => ({ id: u.id, name: u.name, team: u.team, role: u.role })); }
+    if (t === 'enter') watchSlot = d.n;
     let ok = true;
     await runTransaction(gameRef, raw => {
       const M = norm(raw);
@@ -364,7 +368,6 @@ const net = {
       } else if (t === 'enter') {
         const s = M.S[d.n - 1];
         if (!s || !s.B) { ok = false; return; }
-        watchSlot = d.n;
         if (!s.B.units.some(u => u.id === myUser.id)) s.B.spec[myUser.id] = myUser.name;
       } else if (t === 'leave') {
         const s = M.S[d.n - 1];
@@ -403,7 +406,8 @@ const net = {
       }
       return M;
     });
-    if (!ok) throw 0;
+    if (!ok) { if (t === 'enter') watchSlot = 0; throw 0; }
+    if (t === 'enter' && cache) publishState(cache);
     return 1;
   }
 };
@@ -471,10 +475,9 @@ function buildBattle(){
  <div class="lb" id="lb">사용 주문 이름</div><textarea id="tx" placeholder="이곳에 지문을 입력합니다."></textarea>
  <div class="score"><div>PHOENIX<b id="sp">0</b></div><div>DEATH<b id="sd">0</b></div></div><div class="spec" id="spec"></div>
  <div class="chat"><header><span id="clk"></span><button id="fold" aria-label="채팅 접기">▼</button></header><div id="msgs"></div></div></div></div>`;
- $('#tx').onkeydown=e=>{if(e.key!='Enter'||e.shiftKey)return;e.preventDefault();
+ $('#tx').onkeydown=e=>{if(e.isComposing||e.key!='Enter'||e.shiftKey)return;e.preventDefault();
   const mt=myUnit();if(!B||!mt||B.over)return;if(B.cur!=me.id)return flash('아직 내 차례가 아닙니다.');
-  const noSk=Object.values(mt.uses).every(v=>v<1);
-  if(!sel.k&&!noSk)return flash('사용할 주문을 선택하세요.');
+  if(!sel.k)return flash('사용할 주문을 선택하세요.');
   if(sel.k!='inc'&&!sel.t&&sel.k!='pro'&&sel.k!='hea')return flash('공격 대상을 클릭해 선택하세요.');
   net.send('act',{n:cur,skill:sel.k,target:sel.t||me.id,text:$('#tx').value.trim()}).then(()=>{$('#tx').value='';sel={k:null,t:null};upd()}).catch(()=>flash('사용할 수 없는 행동입니다.'))}}
 function flash(t){const l=$('#lb');l.textContent=t;setTimeout(upd,1600)}
@@ -482,7 +485,7 @@ function upd(){try{upd0()}catch(e){const m=$('#msgs');if(m)m.textContent='화면
 function upd0(){if(!B||!$('#pp'))return;const mt=myUnit(),mine=mt&&B.cur==mt.id;
  const unit=u=>`<div class="cd ${u.hp<=0?'dead':''} ${B.cur==u.id?'on':''} ${sel.t==u.id?'tg':''}" data-u="${u.id}"><span>${u.tags.join(' · ')||'정상'}</span><div><b>${u.hp}</b><i>${esc(u.name)}</i></div></div>`;
  $('#pp').innerHTML=B.teams.P.map(unit).join('');$('#dp').innerHTML=B.teams.D.map(unit).join('');
- document.querySelectorAll('.skill').forEach(s=>{const k=s.dataset.k,n=mt?mt.uses[k]:0;s.querySelector('em').textContent=k=='stu'?'∞':n;s.classList.toggle('sel',sel.k==k);s.classList.toggle('off',!mt||n<1||mt.hp<=0)});
+ document.querySelectorAll('.skill').forEach(s=>{const k=s.dataset.k,n=mt?mt.uses[k]:0;s.querySelector('em').textContent=k=='stu'?'∞':n;s.classList.toggle('sel',sel.k==k);s.classList.toggle('off',!mt||(k!='stu'&&n<1)||mt.hp<=0)});
  $('#sp').textContent=B.score.P;$('#sd').textContent=B.score.D;
  $('#spec').innerHTML=B.spec.length?B.spec.map(n=>`<span>${esc(n)}</span>`).join(''):'<span style="background:none;color:#000;opacity:.5">관전자 없음</span>';
  const sl=slots.find(s=>s.n==B.n),c=allU().find(u=>u.id==B.cur);
@@ -496,3 +499,5 @@ const fit=()=>document.documentElement.style.setProperty('--s',Math.min(innerWid
 route();
 </script></body></html>
 ```[cite: 5, 14]
+
+저장 후 1~2분 뒤에 `Ctrl + Shift + R`로 새로고침해서 테스트해 보시면 첫 턴부터 매끄럽게 넘어갈 것입니다!
