@@ -262,8 +262,8 @@ function endTurn(B) {
     if (u.hp <= 0) { u.inc = 0; if (old > 0) L.push(`${u.name}: [행동 불능] 상태가 되었습니다.`); }
     else if (P.exp[u.id]) { u.inc = P.exp[u.id]; L.push(`${u.name}: [일시 불능] ${B.turn + u.inc}턴까지 지속`); }
   });
-  B.sc.P = Math.floor(B.dm.P / 100);
-  B.sc.D = Math.floor(B.dm.D / 100);
+  B.sc.P = Math.floor(B.dm.P / 10);
+  B.sc.D = Math.floor(B.dm.D / 10);
   sys(B, `— ${B.turn}번째 턴 종료 —`);
   L.forEach(t => sys(B, t));
   const dead = x => B.units.filter(u => u.team === x).every(u => u.hp <= 0);
