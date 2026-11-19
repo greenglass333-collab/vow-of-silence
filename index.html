@@ -69,7 +69,9 @@ button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer;ba
 .spec{left:1189px;top:222px;width:371px;height:133px;border:2px solid #000;border-radius:40px;padding:16px 20px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:6px;overflow:auto}
 .spec span{background:#000;color:var(--bg);border-radius:99px;padding:2px 14px;font-size:12px;line-height:18px}
 .chat{left:1189px;top:378px;width:371px;height:485px;background:#000;color:var(--bg);border-radius:60px;padding:28px 30px;display:flex;flex-direction:column}
-.chat header{display:flex;justify-content:space-between;align-items:center;position:static}.chat header span{font:500 28px/1 var(--f)}.chat header button{color:var(--bg);font-size:30px}
+.chat header{display:flex;justify-content:space-between;align-items:center;position:static}
+.chat header span{font:900 23px/1 var(--f);font-stretch:115%;letter-spacing:-.02em}
+.chat header button{color:var(--bg);font-size:28px}
 #msgs{position:static;overflow:auto;flex:1;margin-top:10px;scrollbar-width:none}.chat.fold #msgs{display:none}
 .m{margin:12px 0}.m b{font-size:12px}.m p{border:1px solid var(--bg);border-radius:99px;padding:7px 16px;display:inline-block;margin-top:4px;font-size:12px;font-weight:500;white-space:pre-wrap;max-width:230px}.m small{font-size:9px;margin-left:6px}
 .s{text-align:center;font-size:11px;font-weight:500;margin:12px 0;line-height:1.4}
@@ -85,7 +87,7 @@ button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer;ba
 </style></head><body><div id="app"></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, onValue, runTransaction, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref, onValue, runTransaction, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBCG8EOJQVe2TeJLIfCWQqHnuLcMqsgEPU",
@@ -289,7 +291,7 @@ function publishState(M) {
     if (myUser && curU && curU.bot && !s.B.over) {
       const targetSlot = watchSlot, targetBotId = curU.id;
       botTimer = setTimeout(() => runTransaction(gameRef, raw => {
-        if (!raw) return;
+        if (raw === null) return null;
         const m = norm(raw), b = m.S[targetSlot - 1]?.B;
         if (b && b.cur === targetBotId && !b.over) applyAct(b, targetBotId, {});
         return m;
@@ -299,8 +301,11 @@ function publishState(M) {
 }
 
 onValue(gameRef, snap => {
+  if (!snap.exists()) {
+    set(gameRef, norm(null));
+    return;
+  }
   cache = norm(snap.val());
-  if (!snap.exists()) runTransaction(gameRef, raw => norm(raw));
   publishState(cache);
 });
 
@@ -316,7 +321,7 @@ setInterval(() => {
   });
   if (need) {
     runTransaction(gameRef, raw => {
-      if (!raw) return;
+      if (raw === null) return null;
       const M = norm(raw);
       M.S.forEach(s => {
         const [h, m] = s.time.split(':'), t = kstNow();
@@ -354,6 +359,8 @@ const net = {
     if (t === 'enter') watchSlot = d.n;
     let ok = true;
     await runTransaction(gameRef, raw => {
+      if (raw === null) return null;
+      ok = true;
       const M = norm(raw);
       if (t === 'apply') {
         const s = M.S[d.n - 1];
@@ -489,7 +496,7 @@ function upd0(){if(!B||!$('#pp'))return;const mt=myUnit(),mine=mt&&B.cur==mt.id;
  $('#sp').textContent=B.score.P;$('#sd').textContent=B.score.D;
  $('#spec').innerHTML=B.spec.length?B.spec.map(n=>`<span>${esc(n)}</span>`).join(''):'<span style="background:none;color:#000;opacity:.5">관전자 없음</span>';
  const sl=slots.find(s=>s.n==B.n),c=allU().find(u=>u.id==B.cur);
- $('#clk').textContent=(sl?sl.time:'')+(B.over?' 종료':' · '+B.turn+'턴');
+ $('#clk').textContent=(sl?sl.time:'')+(B.over?' · END':' · ROUND '+B.turn);
  $('#lb').textContent=sel.k?SK[sel.k][0]:'사용 주문 이름';
  $('#tx').placeholder=!mt?'관전 중입니다.':B.over?'전투가 종료되었습니다.':mine?'내 차례입니다. 지문을 입력하고 Enter를 누르세요.':(c?c.name+'의 차례입니다.':'');
  const box=$('#msgs'),stick=box.scrollTop+box.clientHeight>=box.scrollHeight-40;
