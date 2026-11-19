@@ -5,85 +5,85 @@
 <style>
 :root{--bg:#e0e0e0;--k:#000;--f:'Archivo','Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif}
 *{box-sizing:border-box;margin:0}
-body{background:var(--bg);color:var(--k);font:600 14px var(--f);min-height:100vh}
+body{background:var(--bg);color:var(--k);font:700 14px var(--f);min-height:100vh;-webkit-font-smoothing:antialiased}
 button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer;background:none;border:0}
 :focus-visible{outline:3px solid #888;outline-offset:2px}
 /* 로그인 */
 .lg{position:relative;height:100vh;display:grid;place-items:center}
 .lg h1{font:900 8.3vw/1 var(--f);font-stretch:125%;letter-spacing:-.03em;white-space:nowrap}
-.lg input{position:absolute;width:22.9vw;height:2.3vw;min-height:34px;border:1px solid #000;border-radius:99px;background:var(--bg);text-align:center;font-size:1.1vw;font-stretch:75%;outline-offset:3px}
+.lg input{position:absolute;width:22.9vw;height:2.3vw;min-height:34px;border:1px solid #000;border-radius:99px;background:var(--bg);text-align:center;font-size:1.1vw;font-weight:700;font-stretch:75%;outline-offset:3px}
 #u{left:27%;top:calc(50% - 2.35vw)}#p{left:50%;top:calc(50% + .3vw)}
-.lg small{position:absolute;top:62%;font-size:13px}
+.lg small{position:absolute;top:62%;font-size:13px;font-weight:700}
 /* 신청 (1920x1080 정중앙 배치) */
 .ap-wrap{min-height:100vh;width:100%;display:grid;place-items:center;padding:32px 16px}
 .ap{width:min(680px,94vw);background:#000;color:var(--bg);border-radius:52px;padding:40px 42px 44px;box-shadow:0 24px 60px rgba(0,0,0,.18)}
-.ap h2{text-align:center;font-size:32px;font-weight:900;letter-spacing:-.02em;margin-bottom:14px}
-.au{display:flex;justify-content:center;align-items:center;gap:10px;font-size:12px;margin-bottom:22px;opacity:.9}
-.au select{background:#000;color:var(--bg);border:1px solid var(--bg);border-radius:99px;padding:4px 12px;cursor:pointer}
+.ap h2{text-align:center;font-size:32px;font-weight:800;letter-spacing:-.02em;margin-bottom:14px}
+.au{display:flex;justify-content:center;align-items:center;gap:10px;font-size:12px;font-weight:700;margin-bottom:22px;opacity:.9}
+.au select{background:#000;color:var(--bg);border:1px solid var(--bg);border-radius:99px;padding:4px 12px;cursor:pointer;font-weight:700}
 .sl{border:1px solid rgba(224,224,224,.7);border-radius:32px;padding:18px 22px;margin-bottom:14px;display:grid;grid-template-columns:1fr auto;gap:12px 16px;align-items:center}
 .sl:last-child{margin-bottom:0}
 .hd{display:flex;gap:10px;align-items:center;font-size:22px;font-weight:800}
-.tm{background:var(--bg);color:#000;border-radius:99px;padding:2px 16px;font-size:18px;font-weight:900}
+.tm{background:var(--bg);color:#000;border-radius:99px;padding:4px 16px;font-size:17px;font-weight:900;display:inline-flex;align-items:center;line-height:1}
 .nm{grid-column:1;display:grid;grid-template-columns:62px 1fr;align-items:center;gap:10px}
-.nm i{font-style:normal;font-size:12px;opacity:.85}
+.nm i{font-style:normal;font-size:12px;font-weight:700;opacity:.85}
 .nm>div{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 8px}
-.pl{border:1px solid rgba(224,224,224,.8);border-radius:99px;font-size:11px;text-align:center;padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl{border:1px solid rgba(224,224,224,.8);border-radius:99px;font-size:11px;font-weight:700;text-align:center;padding:5px 6px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pl.e{opacity:.35;border-style:dashed}
-.scb{grid-column:2;grid-row:1/3;border:1px solid var(--bg);border-radius:18px;padding:10px 14px;text-align:center;font-weight:900;min-width:108px;display:flex;flex-direction:column;justify-content:center}
+.scb{grid-column:2;grid-row:1/3;border:1px solid var(--bg);border-radius:18px;padding:10px 14px;text-align:center;font-weight:900;min-width:108px;display:flex;flex-direction:column;justify-content:center;align-items:center}
 .scb span{font-size:13px;letter-spacing:.08em;opacity:.85}
 .scb .nums{display:flex;justify-content:center;align-items:center;gap:12px;margin:2px 0}
 .scb b{font-size:32px;line-height:1;font-stretch:125%}
-.scb small{display:block;font-size:8px;font-weight:600;opacity:.7;margin-top:4px}
+.scb small{display:block;font-size:8px;font-weight:700;opacity:.7;margin-top:4px}
 .bs{grid-column:1/3;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:2px}
-.bs button{border:1px solid var(--bg);border-radius:99px;padding:9px 16px;display:flex;justify-content:space-between;align-items:center;color:var(--bg);font-size:12px;transition:background .15s,color .15s}
+.bs button{border:1px solid var(--bg);border-radius:99px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;color:var(--bg);font-size:12px;font-weight:700;line-height:1;transition:background .15s,color .15s}
 .bs button:hover:not(:disabled){background:var(--bg);color:#000}
 .bs button:disabled{opacity:.35;cursor:default}
-.bs button small{font-size:10px;opacity:.8}
+.bs button small{font-size:10px;font-weight:700;opacity:.8}
 /* 전투: 1600x900 고정 무대를 화면 크기에 맞춰 축소/확대 */
 .vp{position:fixed;inset:0;overflow:hidden;background:var(--bg)}
 .bt{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform:translate(-50%,-50%) scale(var(--s,1))}
 .bt>*{position:absolute}
-.home{left:37px;top:38px;background:#000;color:var(--bg);border-radius:99px;padding:0 16px;height:30px;line-height:30px;font:900 18px/30px var(--f);font-stretch:125%;text-decoration:none;white-space:nowrap}
+.home{left:37px;top:38px;background:#000;color:var(--bg);border-radius:99px;padding:0 16px;height:32px;display:inline-flex;align-items:center;justify-content:center;font:900 18px/1 var(--f);font-stretch:125%;text-decoration:none;white-space:nowrap}
 .sk{left:37px;top:172px;width:112px;display:flex;flex-direction:column;gap:33px}
 .skill{position:relative;cursor:pointer;height:112px}
-.skill b{position:absolute;top:-14px;left:0;background:var(--bg);border:1px solid #000;font-size:11px;line-height:13px;padding:0 5px;z-index:1;white-space:nowrap}
+.skill b{position:absolute;top:-14px;left:0;background:var(--bg);border:1px solid #000;font-size:11px;font-weight:800;height:18px;display:inline-flex;align-items:center;padding:0 6px;z-index:1;white-space:nowrap}
 .skill div{border:1px solid #000;height:112px;display:flex;align-items:flex-end;justify-content:flex-end}
 .skill em{font:900 22px/1 var(--f);font-style:normal;background:#000;color:var(--bg);width:40px;height:40px;display:grid;place-items:center;border-radius:6px 0 0 0}
 .skill.sel div{background:#000}.skill.sel em{background:var(--bg);color:#000}.skill.off{opacity:.35;pointer-events:none}
-.skill:hover::after{content:attr(data-tip);position:absolute;left:124px;top:30px;width:200px;background:#000;color:var(--bg);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:500;line-height:1.5;z-index:9}
+.skill:hover::after{content:attr(data-tip);position:absolute;left:124px;top:30px;width:210px;background:#000;color:var(--bg);border-radius:14px;padding:10px 14px;font-size:12px;font-weight:700;line-height:1.5;z-index:9}
 .pn{background:#000;border-radius:36px;padding:18px;display:grid;grid-template-columns:repeat(3,150px);gap:14px;width:513px;height:199px;align-content:center;justify-content:center}
 #pp{left:209px;top:68px}#dp{left:638px;top:422px}
 .cd{background:var(--bg);border-radius:24px;width:150px;height:150px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;border:3px solid transparent}
 .cd.tg{border-color:#888}.cd.on{box-shadow:0 0 0 3px var(--bg),0 0 0 6px #000}.cd.dead{opacity:.4}
-.cd span{align-self:flex-start;background:#000;color:var(--bg);border-radius:99px;padding:1px 12px;font-size:12px;line-height:18px}
+.cd span{align-self:flex-start;background:#000;color:var(--bg);border-radius:99px;padding:4px 12px;font-size:11px;font-weight:700;line-height:1;display:inline-flex;align-items:center}
 .cd div{position:static;display:flex;justify-content:space-between;align-items:flex-end}
 .cd b{font:900 32px/1 var(--f);font-stretch:110%;letter-spacing:-.02em}
-.cd i{font-style:normal;background:#000;color:var(--bg);border-radius:10px;width:46px;height:46px;display:grid;place-items:center;font-size:10px;text-align:center;overflow:hidden;line-height:1.2}
-.tl{font:800 34px/1 var(--f);font-stretch:125%;white-space:nowrap}.tl:not(.r){left:209px;top:276px}.tl.r{right:449px;top:376px}
-.lb{left:209px;top:650px;background:#000;color:var(--bg);border-radius:99px;padding:0 26px;height:35px;line-height:35px;font-size:18px}
-#tx{left:209px;top:694px;width:954px;height:169px;border:2px solid #000;border-radius:56px;background:transparent;resize:none;padding:26px 36px;font-size:15px;line-height:1.5;outline-offset:3px}
+.cd i{font-style:normal;background:#000;color:var(--bg);border-radius:10px;width:46px;height:46px;display:grid;place-items:center;font-size:10px;font-weight:700;text-align:center;overflow:hidden;line-height:1.2;padding:2px}
+.tl{font:800 34px/1 var(--f);font-stretch:125%;white-space:nowrap}.tl:not(.r){left:209px;top:278px}.tl.r{right:449px;top:378px}
+.lb{left:209px;top:676px;background:#000;color:var(--bg);border-radius:99px;padding:0 24px;height:34px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;line-height:1}
+#tx{left:209px;top:720px;width:954px;height:112px;border:2px solid #000;border-radius:36px;background:transparent;resize:none;padding:18px 30px;font-size:15px;font-weight:700;line-height:1.5;outline-offset:3px}
 .score{left:1189px;top:39px;width:371px;height:161px;background:#000;border-radius:48px;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:14px}
 .score::before{content:"SCORE";position:absolute;left:0;right:0;text-align:center;font:900 130px/1 var(--f);font-stretch:125%;color:var(--bg);opacity:.9;letter-spacing:-.04em}
-.score div{position:relative;background:#000;color:var(--bg);width:130px;height:104px;padding:6px 0;font:900 28px/1 var(--f);font-stretch:62%;text-align:center}
-.score div b{display:block;font-size:54px;font-stretch:125%;margin-top:4px}
+.score div{position:relative;background:#000;color:var(--bg);width:130px;height:104px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:900 28px/1 var(--f);font-stretch:62%;text-align:center}
+.score div b{display:block;font-size:54px;line-height:1;font-stretch:125%;margin-top:4px}
 .spec{left:1189px;top:222px;width:371px;height:133px;border:2px solid #000;border-radius:40px;padding:16px 20px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:6px;overflow:auto}
-.spec span{background:#000;color:var(--bg);border-radius:99px;padding:2px 14px;font-size:12px;line-height:18px}
+.spec span{background:#000;color:var(--bg);border-radius:99px;padding:4px 14px;font-size:12px;font-weight:700;line-height:1;display:inline-flex;align-items:center}
 .chat{left:1189px;top:378px;width:371px;height:485px;background:#000;color:var(--bg);border-radius:60px;padding:28px 30px;display:flex;flex-direction:column}
 .chat header{display:flex;justify-content:space-between;align-items:center;position:static}
-.chat header span{font:900 23px/1 var(--f);font-stretch:115%;letter-spacing:-.02em}
-.chat header button{color:var(--bg);font-size:28px}
+.chat header span{font:900 22px/1 var(--f);font-stretch:115%;letter-spacing:-.02em;display:inline-flex;align-items:center}
+.chat header button{color:var(--bg);font-size:26px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
 #msgs{position:static;overflow:auto;flex:1;margin-top:10px;scrollbar-width:none}.chat.fold #msgs{display:none}
-.m{margin:12px 0}.m b{font-size:12px}.m p{border:1px solid var(--bg);border-radius:99px;padding:7px 16px;display:inline-block;margin-top:4px;font-size:12px;font-weight:500;white-space:pre-wrap;max-width:230px}.m small{font-size:9px;margin-left:6px}
-.s{text-align:center;font-size:11px;font-weight:500;margin:12px 0;line-height:1.4}
+.m{margin:12px 0}.m b{font-size:12px;font-weight:800}.m p{border:1px solid var(--bg);border-radius:20px;padding:8px 16px;display:inline-block;margin-top:4px;font-size:12px;font-weight:700;line-height:1.4;white-space:pre-wrap;max-width:230px}.m small{font-size:9px;font-weight:700;margin-left:6px;opacity:.8}
+.s{text-align:center;font-size:11px;font-weight:700;margin:12px 0;line-height:1.45;opacity:.9}
 /* 운영 */
 .ad-wrap{min-height:100vh;display:grid;place-items:center;padding:24px}
 .ad{width:min(700px,94vw);border:2px solid #000;border-radius:28px;padding:30px;display:grid;gap:12px;background:var(--bg)}
-.ad div{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ad h3{margin-top:8px}
-.ad input,.ad button,.ad select{border:1px solid #000;border-radius:99px;padding:6px 14px;background:transparent}.ad input{width:130px}
+.ad div{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ad h3{margin-top:8px;font-weight:800}
+.ad input,.ad button,.ad select{border:1px solid #000;border-radius:99px;padding:6px 14px;background:transparent;font-weight:700}.ad input{width:130px}
 .ad button{background:#000;color:var(--bg);transition:opacity .15s}.ad button:hover{opacity:.8}
 .ad button.sub{background:transparent;color:#000}
-.ad table{border-collapse:collapse;width:100%}.ad td,.ad th{text-align:left;padding:6px 8px;border-bottom:1px solid #999}.ad td button{padding:3px 12px}
-#adm-msg,#ae{font-size:12px;min-height:16px;font-weight:700}
+.ad table{border-collapse:collapse;width:100%}.ad td,.ad th{text-align:left;padding:7px 8px;border-bottom:1px solid #999;font-weight:700}.ad td button{padding:4px 12px}
+#adm-msg,#ae{font-size:12px;min-height:16px;font-weight:800}
 </style></head><body><div id="app"></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -128,7 +128,7 @@ const shuf = a => a.map(x => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map
 const kstDay = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' });
 const kstNow = () => new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
 
-let cache = null, myUser = null, watchSlot = 0, botTimer = null;
+let cache = null, myUser = null, watchSlot = 0, busy = false;
 
 function initSlots(times, auto, users) {
   const S = times.map((time, i) => ({ n: i + 1, time, P: [], D: [], B: null, x: 0 }));
@@ -149,6 +149,7 @@ function normB(B, n) {
     turn: B.turn || 0,
     i: B.i ?? -1,
     cur: B.cur || null,
+    turnStart: B.turnStart || Date.now(),
     order: B.order ? Object.values(B.order) : [],
     units: B.units ? Object.values(B.units) : [],
     log: B.log ? Object.values(B.log) : [],
@@ -200,7 +201,7 @@ function viewBattle(B) {
 
 function startBattle(s) {
   const mk = u => ({ id: u.id, name: u.name, team: u.team, hp: 100, inc: 0, bot: !!u.bot, uses: { stu: 10, inc: 2, pro: 3, hea: 1, exp: 3 } });
-  const B = s.B = { n: s.n, turn: 0, i: -1, cur: null, order: [], units: [...s.P, ...s.D].map(mk), log: [], spec: {}, over: null, sc: { P: 0, D: 0 }, dm: { P: 0, D: 0 }, end: Date.now() + 36e5, pend: { dmg: {}, sh: {}, heal: {}, exp: {} } };
+  const B = s.B = { n: s.n, turn: 0, i: -1, cur: null, turnStart: Date.now(), order: [], units: [...s.P, ...s.D].map(mk), log: [], spec: {}, over: null, sc: { P: 0, D: 0 }, dm: { P: 0, D: 0 }, end: Date.now() + 36e5, pend: { dmg: {}, sh: {}, heal: {}, exp: {} } };
   sys(B, '전투가 시작되었습니다.');
   nextTurn(B);
 }
@@ -217,6 +218,7 @@ function advance(B) {
   B.i++;
   if (B.i >= B.order.length) { B.cur = null; return endTurn(B); }
   B.cur = B.order[B.i];
+  B.turnStart = Date.now();
 }
 
 function applyAct(B, uid, d) {
@@ -289,25 +291,7 @@ function finBattle(B, why) {
 function publishState(M) {
   net.emit('slots', M.S.map(s => ({ n: s.n, time: s.time, P: s.P.map(u => u.name), D: s.D.map(u => u.name), score: s.B ? [s.B.sc.P, s.B.sc.D] : [0, 0], status: st(s) })));
   const s = M.S[watchSlot - 1];
-  if (s && s.B) {
-    net.emit('battle', viewBattle(s.B));
-    const curU = s.B.units.find(u => u.id === s.B.cur);
-    clearTimeout(botTimer);
-    if (myUser && curU && curU.bot && !s.B.over) {
-      const targetSlot = watchSlot, targetBotId = curU.id;
-      botTimer = setTimeout(async () => {
-        try {
-          const bRef = ref(db, `vow_of_silence_game/S/${targetSlot - 1}/B`);
-          const snap = await get(bRef);
-          if (!snap.exists()) return;
-          const b = normB(snap.val(), targetSlot);
-          if (b && b.cur === targetBotId && !b.over) {
-            if (applyAct(b, targetBotId, {})) await set(bRef, b);
-          }
-        } catch (e) { console.error(e); }
-      }, 1000);
-    }
-  }
+  if (s && s.B) net.emit('battle', viewBattle(s.B));
 }
 
 onValue(gameRef, snap => {
@@ -318,6 +302,30 @@ onValue(gameRef, snap => {
   cache = norm(snap.val());
   publishState(cache);
 });
+
+/* 턴 자동 진행 감시 (봇 1.2초 / 유저 미응답 45초 자동 패스) */
+setInterval(async () => {
+  if (!cache || !myUser || !watchSlot || busy) return;
+  const s = cache.S[watchSlot - 1];
+  if (!s || !s.B || s.B.over || !s.B.cur) return;
+  const curU = s.B.units.find(u => u.id === s.B.cur);
+  if (!curU) return;
+  const elapsed = Date.now() - (s.B.turnStart || 0);
+  const limit = curU.bot ? 1200 : 45000;
+  if (elapsed < limit) return;
+  busy = true;
+  try {
+    const bRef = ref(db, `vow_of_silence_game/S/${watchSlot - 1}/B`);
+    const snap = await get(bRef);
+    if (snap.exists()) {
+      const b = normB(snap.val(), watchSlot);
+      if (b && b.cur === curU.id && !b.over && Date.now() - (b.turnStart || 0) >= limit) {
+        if (applyAct(b, curU.id, {})) await set(bRef, b);
+      }
+    }
+  } catch (e) { console.error(e); }
+  busy = false;
+}, 1200);
 
 setInterval(async () => {
   if (!cache) return;
