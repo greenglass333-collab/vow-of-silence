@@ -235,7 +235,7 @@ function applyAct(B, uid, d) {
     if (k !== 'inc' && (!t || t.hp <= 0 || (ally ? t.team !== u.team : t.team === u.team))) return false;
     const add = (o, id, v) => o[id] = (o[id] || 0) + v;
     let lab = '데미지', v = 0, eff = '없음';
-    u.uses[k]--;
+    if (k !== 'stu') u.uses[k]--;
     if (k === 'stu') { v = Math.round(R(5, 20) * (2 - t.hp / 100)); add(P.dmg, t.id, v); }
     else if (k === 'inc') B.units.filter(x => x.team !== u.team && x.hp > 0).forEach(x => { const w = R(3, 15); v += w; add(P.dmg, x.id, w); });
     else if (k === 'pro') { lab = '방어'; v = R(5, 20); add(P.sh, t.id, v); }
@@ -285,7 +285,7 @@ function publishState(M) {
   if (s && s.B) {
     net.emit('battle', viewBattle(s.B));
     const curU = s.B.units.find(u => u.id === s.B.cur);
-    if (myUser && myUser.role === 'admin' && curU && curU.bot && !s.B.over) {
+    if (myUser && curU && curU.bot && !s.B.over) {
       clearTimeout(botTimer);
       botTimer = setTimeout(() => runTransaction(gameRef, raw => {
         const m = norm(raw), b = m.S[watchSlot - 1]?.B;
@@ -473,7 +473,8 @@ function buildBattle(){
  <div class="chat"><header><span id="clk"></span><button id="fold" aria-label="채팅 접기">▼</button></header><div id="msgs"></div></div></div></div>`;
  $('#tx').onkeydown=e=>{if(e.key!='Enter'||e.shiftKey)return;e.preventDefault();
   const mt=myUnit();if(!B||!mt||B.over)return;if(B.cur!=me.id)return flash('아직 내 차례가 아닙니다.');
-  if(!sel.k)return flash('사용할 주문을 선택하세요.');
+  const noSk=Object.values(mt.uses).every(v=>v<1);
+  if(!sel.k&&!noSk)return flash('사용할 주문을 선택하세요.');
   if(sel.k!='inc'&&!sel.t&&sel.k!='pro'&&sel.k!='hea')return flash('공격 대상을 클릭해 선택하세요.');
   net.send('act',{n:cur,skill:sel.k,target:sel.t||me.id,text:$('#tx').value.trim()}).then(()=>{$('#tx').value='';sel={k:null,t:null};upd()}).catch(()=>flash('사용할 수 없는 행동입니다.'))}}
 function flash(t){const l=$('#lb');l.textContent=t;setTimeout(upd,1600)}
@@ -481,7 +482,7 @@ function upd(){try{upd0()}catch(e){const m=$('#msgs');if(m)m.textContent='화면
 function upd0(){if(!B||!$('#pp'))return;const mt=myUnit(),mine=mt&&B.cur==mt.id;
  const unit=u=>`<div class="cd ${u.hp<=0?'dead':''} ${B.cur==u.id?'on':''} ${sel.t==u.id?'tg':''}" data-u="${u.id}"><span>${u.tags.join(' · ')||'정상'}</span><div><b>${u.hp}</b><i>${esc(u.name)}</i></div></div>`;
  $('#pp').innerHTML=B.teams.P.map(unit).join('');$('#dp').innerHTML=B.teams.D.map(unit).join('');
- document.querySelectorAll('.skill').forEach(s=>{const k=s.dataset.k,n=mt?mt.uses[k]:0;s.querySelector('em').textContent=n;s.classList.toggle('sel',sel.k==k);s.classList.toggle('off',!mt||n<1||mt.hp<=0)});
+ document.querySelectorAll('.skill').forEach(s=>{const k=s.dataset.k,n=mt?mt.uses[k]:0;s.querySelector('em').textContent=k=='stu'?'∞':n;s.classList.toggle('sel',sel.k==k);s.classList.toggle('off',!mt||n<1||mt.hp<=0)});
  $('#sp').textContent=B.score.P;$('#sd').textContent=B.score.D;
  $('#spec').innerHTML=B.spec.length?B.spec.map(n=>`<span>${esc(n)}</span>`).join(''):'<span style="background:none;color:#000;opacity:.5">관전자 없음</span>';
  const sl=slots.find(s=>s.n==B.n),c=allU().find(u=>u.id==B.cur);
