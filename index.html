@@ -32,7 +32,7 @@ button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer;ba
 .bt{display:grid;grid-template-columns:8vw 1fr 23.5vw;gap:1.4vw;height:100vh;padding:2.4vh 1.4vw;overflow:hidden}
 .sk{display:flex;flex-direction:column;gap:2.2vh;overflow:auto}
 .home{display:inline-block;background:#000;color:var(--bg);border-radius:99px;padding:2px 16px;font:900 2vw var(--f);font-stretch:125%;text-decoration:none;margin-bottom:5vh;white-space:nowrap;align-self:flex-start}
-.skill{position:relative;cursor:pointer}.skill b{position:absolute;top:-1.1vh;left:0;background:var(--bg);border:1px solid #000;font-size:.7vw;min-font-size:9px;padding:0 6px;font-size:max(9px,.75vw);z-index:1}
+.skill{position:relative;cursor:pointer}.skill b{position:absolute;top:-1.1vh;left:0;background:var(--bg);border:1px solid #000;font-size:max(9px,.75vw);padding:0 6px;z-index:1}
 .skill div{border:1px solid #000;aspect-ratio:1;display:flex;align-items:flex-end;justify-content:flex-end;padding:6px}
 .skill em{font:900 max(14px,1.8vw)/1 var(--f);font-style:normal;background:#000;color:var(--bg);border-radius:8px;width:2.6vw;min-width:26px;aspect-ratio:1;display:grid;place-items:center}
 .skill.sel div{background:#000}.skill.sel em{background:var(--bg);color:#000}.skill.off{opacity:.35;pointer-events:none}
@@ -63,22 +63,9 @@ button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer;ba
 .ad input,.ad button{border:1px solid #000;border-radius:99px;padding:6px 14px}.ad button{background:#000;color:var(--bg)}
 </style></head><body><div id="app"></div>
 <script type="module">
-/* ============ 서버 연동 안내 ============
- * 아래 `net` 객체만 WebSocket/HTTP 구현으로 교체하면 됩니다. (MOCK 블록은 삭제)
- * net.send(type,data) -> Promise (실패 시 reject) / net.on(type,fn) <- 서버 푸시
- * 요청: login{id,pw}→{id,name,team:'P'|'D',role:'user'|'admin',auto}  slots→[slot]  apply{n}  cancel{n}  auto{n(0=해제)}
- *       enter{n}(→battle 푸시 시작)  leave{n}  act{n,skill,target,text}  setTimes{times:[4]}  forceStart{n}
- * 푸시: slots [slot]  /  battle state
- * slot  = {n,time:'16:00',P:[이름],D:[이름],score:[p,d],status:'open'|'full'|'live'|'done'|'cancel'}
- * state = {n,turn,cur:id|null,teams:{P:[unit],D:[unit]},score:{P,D},spec:[이름],log:[entry],over:null|{w:'P'|'D'|null}}
- *   unit={id,name,hp,tags:['행동 불능'|'일시 불능'|'빈사'],uses:{stu,inc,pro,hea,exp}}
- *   entry={k:'chat',name,text,turn} | {k:'sys',text}
- * skill 키: stu 스투페파이, inc 인센디오, pro 프로테고, hea 치유 주문, exp 엑스펠리아무스
- */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-/* 1. 본인 Firebase Realtime Database 설정으로 교체하세요 */
 const firebaseConfig = {
   apiKey: "AIzaSyBCG8EOJQVe2TeJLIfCWQqHnuLcMqsgEPU",
   authDomain: "vow-of-silence-e2c93.firebaseapp.com",
@@ -89,11 +76,7 @@ const firebaseConfig = {
   appId: "1:63020183712:web:7a18d5c051d77b8a5759c5",
   measurementId: "G-ENSV95H5Y4"
 };
-```[cite: 5]
 
-이제 파일을 저장하신 뒤 브라우저로 열어서 `admin` / `admin`으로 로그인해 테스트해 보시면 됩니다!
-
-/* 2. 관리진이 배부할 계정 목록 (P: 불사조 기사단 / D: 죽음을 먹는 자) */
 const USERS = [
   { id: 'harry', pw: '1234', name: '해리', team: 'P', role: 'user' },
   { id: 'ron', pw: '1234', name: '론', team: 'P', role: 'user' },
@@ -116,7 +99,6 @@ const SK = {
   exp: ['엑스펠리아무스', 3, '상대를 1~3턴 일시 불능으로 만듦. 3회']
 };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-
 const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const pick = a => a[R(0, a.length - 1)];
 const shuf = a => a.map(x => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
@@ -129,8 +111,7 @@ function initSlots(times, auto) {
   const S = times.map((time, i) => ({ n: i + 1, time, P: [], D: [], B: null, x: 0 }));
   Object.entries(auto || {}).forEach(([id, n]) => {
     if (!n) return;
-    const u = USERS.find(x => x.id === id);
-    const s = S[n - 1];
+    const u = USERS.find(x => x.id === id), s = S[n - 1];
     if (u && s && u.team && s[u.team].length < 3 && !s[u.team].some(x => x.id === u.id)) {
       s[u.team].push({ id: u.id, name: u.name, team: u.team });
     }
@@ -383,7 +364,9 @@ const net = {
     if (!ok) throw 0;
     return 1;
   }
-};/* ============ CLIENT ============ */
+};
+
+/* ============ CLIENT ============ */
 const $=s=>document.querySelector(s),app=$('#app');
 let me=null,slots=[],B=null,cur=0,sel={k:null,t:null};
 net.on('slots',s=>{slots=s;if(location.hash=='#apply')drawApply()});
@@ -447,3 +430,4 @@ function upd(){if(!B||!$('#pp'))return;const mt=myUnit(),mine=mt&&B.cur==mt.id;
  if(stick)box.scrollTop=box.scrollHeight}
 route();
 </script></body></html>
+```[cite: 3, 5]
