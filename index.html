@@ -159,19 +159,21 @@ const SK = {
   inc: ['인센디오', 2, '상대 진영 전체 공격'],
   pro: ['프로테고', 3, '같은 진영 1인의 피해를 막음'],
   hea: ['치유 주문', 1, '같은 진영 1인의 HP를 회복'],
-  exp: ['엑스펠리아무스', 3, '상대를 일시 불능으로 만듦']
+  exp: ['엑스펠리아무스', 2, '상대를 확률적으로 일시 불능으로 만듦']
 };
 const LV = {
-  stu: { r: [[5, 20], [7, 25], [7, 25], [10, 30], [12, 35]], p: [0, 0, 5, 10, 15], u: [10, 10, 10, 10, 10], c: [5, 10, 20, 40] },
-  inc: { r: [[3, 15], [5, 20], [5, 20], [7, 25], [7, 30]], p: [0, 0, 15, 25, 40], u: [2, 2, 2, 2, 2], c: [7, 14, 28, 56] },
-  pro: { r: [[5, 20], [7, 25], [7, 25], [10, 30], [12, 35]], u: [3, 3, 4, 4, 5], c: [5, 10, 20, 40] },
-  hea: { r: [[1, 99], [10, 99], [10, 99], [10, 99], [10, 99]], u: [1, 1, 2, 3, 4], c: [10, 20, 40, 80] },
-  exp: { r: [[1, 3], [2, 4], [2, 4], [2, 4], [2, 4]], u: [3, 3, 4, 4, 5], c: [10, 20, 40, 80] }
+  stu: { r: [[5, 20], [7, 25], [7, 25], [10, 30], [12, 35]], p: [0, 0, 5, 10, 15], u: [10, 10, 10, 10, 10], c: [3, 6, 12, 20] },
+  inc: { r: [[3, 15], [5, 20], [5, 20], [7, 25], [7, 30]], p: [0, 0, 15, 25, 40], u: [2, 2, 2, 2, 2], c: [4, 8, 15, 25] },
+  pro: { r: [[15, 30], [20, 35], [20, 40], [25, 45], [30, 55]], u: [3, 3, 4, 4, 5], c: [3, 6, 12, 20] },
+  hea: { r: [[15, 30], [20, 40], [25, 45], [30, 55], [40, 65]], u: [1, 1, 2, 2, 2], c: [5, 10, 20, 30] },
+  exp: { r: [[1, 1], [1, 1], [1, 2], [1, 2], [1, 2]], p: [55, 65, 70, 75, 85], u: [2, 2, 2, 3, 3], c: [5, 10, 20, 30] }
 };
 const desc = (k, l) => {
   const r = LV[k].r[l], p = (LV[k].p || [])[l], u = LV[k].u[l];
-  const t = { stu: `데미지 ${r[0]}~${r[1]}`, inc: `전체 데미지 ${r[0]}~${r[1]}`, pro: `방어 ${r[0]}~${r[1]}`, hea: `회복 ${r[0]}~${r[1]}`, exp: `일시 불능 ${r[0]}~${r[1]}턴` }[k];
-  return t + (p ? (k === 'stu' ? ` · ${p}% 확률 일시 불능` : ` · ${p}% 확률 지속 피해(턴당 1~7, 1~3턴)`) : '') + (k === 'stu' ? ' · 사용 무제한' : ` · 사용 ${u}회`);
+  const rng = r[0] === r[1] ? `${r[0]}` : `${r[0]}~${r[1]}`;
+  const t = { stu: `데미지 ${rng}`, inc: `전체 데미지 ${rng}`, pro: `방어 ${rng}`, hea: `회복 ${rng}`, exp: `일시 불능 ${rng}턴` }[k];
+  const ex = p ? (k === 'stu' ? ` · ${p}% 확률 일시 불능` : k === 'inc' ? ` · ${p}% 확률 지속 피해(턴당 1~7, 1~3턴)` : ` · 성공률 ${p}%`) : '';
+  return t + ex + (k === 'stu' ? ' · 사용 무제한' : ` · 사용 ${u}회`);
 };
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -212,7 +214,7 @@ function normB(B, n) {
       ...u,
       dot: u.dot ? (Array.isArray(u.dot) ? u.dot : Object.values(u.dot)) : [],
       lv: Object.assign(ZERO(), u.lv || {}),
-      uses: u.uses || { stu: 10, inc: 2, pro: 3, hea: 1, exp: 3 }
+      uses: u.uses || { stu: 10, inc: 2, pro: 3, hea: 1, exp: 2 }
     })) : [],
     log: B.log ? Object.values(B.log) : [],
     spec: B.spec || {},
@@ -327,24 +329,39 @@ function applyAct(B, uid, d) {
     const mx = (id, n) => P.exp[id] = Math.max(P.exp[id] || 0, n);
     const L = (u.lv && u.lv[k]) || 0, [lo, hi] = LV[k].r[L], pc = (LV[k].p || [])[L] || 0;
     const eff = [], en = B.units.filter(x => x.team !== u.team && x.hp > 0);
-    let lab = '데미지', v = 0;
+    let lab = '데미지', v = 0, msgRes = '';
     if (k !== 'stu') u.uses[k]--;
     if (k === 'stu') {
       v = Math.round(R(lo, hi) * (2 - t.hp / 100));
       add(P.dmg, t.id, v);
       if (R(1, 100) <= pc) { mx(t.id, 1); eff.push('일시 불능'); }
+      msgRes = `${lab} ${v}`;
     } else if (k === 'inc') {
       en.forEach(x => { const w = R(lo, hi); v += w; add(P.dmg, x.id, w); });
       if (R(1, 100) <= pc) {
         shuf(en).slice(0, R(1, Math.min(3, en.length))).forEach(x => (P.dot[x.id] = P.dot[x.id] || []).push(R(1, 3)));
         eff.push('지속 피해');
       }
-    } else if (k === 'pro') { lab = '방어'; v = R(lo, hi); add(P.sh, t.id, v); }
-    else if (k === 'hea') { lab = '회복'; v = R(lo, hi); add(P.heal, t.id, v); }
-    else { mx(t.id, R(lo, hi)); eff.push('일시 불능'); }
+      msgRes = `${lab} ${v}`;
+    } else if (k === 'pro') {
+      lab = '방어'; v = R(lo, hi); add(P.sh, t.id, v);
+      msgRes = `${lab} ${v}`;
+    } else if (k === 'hea') {
+      lab = '회복'; v = R(lo, hi); add(P.heal, t.id, v);
+      msgRes = `${lab} ${v}`;
+    } else {
+      if (R(1, 100) <= pc) {
+        v = R(lo, hi);
+        mx(t.id, v);
+        eff.push('일시 불능');
+        msgRes = `지속 ${v}턴`;
+      } else {
+        msgRes = '발동 실패';
+      }
+    }
     const to = k === 'inc' ? '전체' : t.name;
     B.log.push({ k: 'chat', name: u.name, to, text: d.text || '(말없이 지팡이를 든다)', turn: B.turn });
-    sys(B, `${u.name}${j(u.name, '이', '가')} ${SK[k][0]}${j(SK[k][0], '을', '를')} ${to}에게 사용하였습니다. ${lab} ${v}, 특수효과 ${eff.join(', ') || '없음'} 적용.`);
+    sys(B, `${u.name}${j(u.name, '이', '가')} ${SK[k][0]}${j(SK[k][0], '을', '를')} ${to}에게 사용하였습니다. ${msgRes}, 특수효과 ${eff.join(', ') || '없음'} 적용.`);
   }
   advance(B);
   return true;
